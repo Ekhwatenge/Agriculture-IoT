@@ -1,0 +1,64 @@
+# Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import describe
+
+# Load the dataset
+data = pd.read_csv('Advanced_IoT_Dataset.csv')
+
+# Display all column names to check for discrepancies
+print("Column Names in Dataset:")
+print(data.columns)
+
+# Strip any leading/trailing spaces from column names to avoid KeyError
+data.columns = data.columns.str.strip()
+
+# Check if 'Average of chlorophyll in the plant (ACHP)' exists after cleaning
+if 'Average of chlorophyll in the plant (ACHP)' not in data.columns:
+    print("Column 'Average of chlorophyll in the plant (ACHP)' not found! Please verify dataset headers.")
+else:
+    # Extract chlorophyll data for analysis
+    chlorophyll_data = data['Average of chlorophyll in the plant (ACHP)']
+
+    # **Exploratory Data Analysis**
+    # Basic statistics for chlorophyll levels
+    print("\nDescriptive Statistics for Chlorophyll Levels:")
+    print(describe(chlorophyll_data))
+
+    # Plot histogram with density curve for chlorophyll levels
+    plt.figure(figsize=(10, 6))
+    sns.histplot(chlorophyll_data, kde=True, color="blue", bins=15)
+    plt.title('Distribution of Chlorophyll Levels', fontsize=16)
+    plt.xlabel('Chlorophyll Levels', fontsize=14)
+    plt.ylabel('Frequency', fontsize=14)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.show()
+
+    # Boxplot to check for outliers in chlorophyll levels
+    plt.figure(figsize=(8, 5))
+    sns.boxplot(x=chlorophyll_data, color="skyblue")
+    plt.title('Boxplot of Chlorophyll Levels', fontsize=16)
+    plt.xlabel('Chlorophyll Levels', fontsize=14)
+    plt.grid(axis='x', linestyle='--', alpha=0.7)
+    plt.show()
+
+# Correlation analysis between chlorophyll levels and other growth metrics
+growth_metrics = ['Plant height rate (PHR)', 'Average wet weight of the growth vegetative (AWWGV)',
+                  'Average leaf area of the plant (ALAP)', 'Average number of plant leaves (ANPL)']
+
+# Ensure all required columns exist before proceeding
+missing_columns = [col for col in growth_metrics if col not in data.columns]
+if missing_columns:
+    print(f"Missing columns for correlation analysis: {missing_columns}")
+else:
+    correlations = data[growth_metrics + ['Average of chlorophyll in the plant (ACHP)']].corr()
+
+    print("\nCorrelation Matrix:")
+    print(correlations)
+
+    # Visualize correlations using a heatmap
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(correlations, annot=True, cmap='coolwarm')
+    plt.title('Correlation Matrix Heatmap', fontsize=16)
+    plt.show()
